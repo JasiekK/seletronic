@@ -77,6 +77,13 @@ class ProductControllerSpec extends Specification implements TestUtil {
         mvcResultCategoryTV.response.status == 201
         mvcResultCategoryPhone.response.status == 201
 
+
+        and: 'get product id from response headers'
+        Long categoryTvId = getIdFromUri(mvcResultCategoryTV.response.headers.get('Location').value as String)
+        Long categoryPhoneId =getIdFromUri(mvcResultCategoryPhone.response.headers.get('Location').value as String)
+
+        product.category.id = categoryTvId
+
         then: 'create new product'
         MvcResult mvcResultProduct = mvc.perform(post('http://localhost:8080/products')
                 .contentType('application/json;charset=UTF-8')
@@ -89,7 +96,8 @@ class ProductControllerSpec extends Specification implements TestUtil {
         and: 'get product id from response headers'
         Long id = getIdFromUri(mvcResultProduct.response.headers.get('Location').value as String)
 
-        and: 'change category and add '
+        and: 'change category and add parameters and comment'
+        categoryPhone.id = categoryPhoneId
         product.setCategory(categoryPhone)
         product.getParameters().add(new Parameters(name: "name", value: "Samsung UE22H5600"))
         product.getComment().add(new Comment("test"))
@@ -123,11 +131,11 @@ class ProductControllerSpec extends Specification implements TestUtil {
     }
 
     Category populateCategory() {
-        new Category(id: 1l, name: "TV")
+        new Category( "TV")
     }
 
     Category populateCategoryPhone() {
-        new Category(id: 2l, name: "phone")
+        new Category( "phone")
     }
 
 }
